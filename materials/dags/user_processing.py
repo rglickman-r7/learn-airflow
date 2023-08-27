@@ -58,12 +58,14 @@ with DAG('user_processing', start_date=datetime(2022, 1, 1),
         http_conn_id='user_api',
         endpoint='api/',
         method='GET',
+        #filters what data we're getting from the api and format to extract it
         response_filter=lambda response: json.loads(response.text),
         log_response=True
     )
 
     process_user = PythonOperator(
         task_id='process_user',
+        #defines which function to call
         python_callable=_process_user    
     )
 
@@ -72,4 +74,5 @@ with DAG('user_processing', start_date=datetime(2022, 1, 1),
         python_callable=_store_user
     )
 
+    #Define dependencies
     create_table >> is_api_available >> extract_user >> process_user >> store_user
